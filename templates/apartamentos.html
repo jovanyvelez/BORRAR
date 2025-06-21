@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apartamentos - Sistema de Administración</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #34495e;
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        .apartamento-id {
+            font-weight: bold;
+            color: #2980b9;
+        }
+        .coeficiente {
+            font-family: 'Courier New', monospace;
+            background-color: #e8f4fd;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .propietario-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .propietario-nombre {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        .propietario-documento {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            margin-top: 2px;
+        }
+        .fecha {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .no-propietario {
+            color: #e74c3c;
+            font-style: italic;
+        }
+        .search-box {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            .stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+            table {
+                font-size: 14px;
+            }
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏢 Gestión de Apartamentos</h1>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">{{ total_apartamentos }}</div>
+                <div class="stat-label">Total Apartamentos</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ apartamentos_con_propietario }}</div>
+                <div class="stat-label">Con Propietario</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ apartamentos_sin_propietario }}</div>
+                <div class="stat-label">Sin Propietario</div>
+            </div>
+        </div>
+
+        <input type="text" id="searchInput" class="search-box" placeholder="Buscar por identificador, propietario o documento...">
+        
+        <div class="table-container">
+            <table id="apartamentosTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Identificador</th>
+                        <th>Coeficiente</th>
+                        <th>Propietario</th>
+                        <th>Fecha Creación</th>
+                        <th>Última Actualización</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for apartamento in apartamentos %}
+                    <tr>
+                        <td class="apartamento-id">{{ apartamento.id }}</td>
+                        <td><strong>{{ apartamento.identificador }}</strong></td>
+                        <td><span class="coeficiente">{{ "%.6f"|format(apartamento.coeficiente_copropiedad) }}</span></td>
+                        <td>
+                            {% if apartamento.propietario %}
+                            <div class="propietario-info">
+                                <span class="propietario-nombre">{{ apartamento.propietario.nombre_completo }}</span>
+                                <span class="propietario-documento">{{ apartamento.propietario.documento_identidad }}</span>
+                            </div>
+                            {% else %}
+                            <span class="no-propietario">Sin propietario asignado</span>
+                            {% endif %}
+                        </td>
+                        <td class="fecha">{{ apartamento.fecha_creacion.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td class="fecha">{{ apartamento.fecha_actualizacion.strftime('%d/%m/%Y %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Funcionalidad de búsqueda
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            var input = this.value.toLowerCase();
+            var table = document.getElementById('apartamentosTable');
+            var rows = table.getElementsByTagName('tr');
+            
+            for (var i = 1; i < rows.length; i++) {
+                var row = rows[i];
+                var text = row.textContent.toLowerCase();
+                
+                if (text.includes(input)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
