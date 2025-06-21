@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from src.config import settings
 
 # Importar rutas
-from src.routes import auth_router, test_router
+from src.routes import auth_router, apartamentos_router
 
 
 # Crear la aplicación FastAPI
@@ -19,5 +19,5 @@ app = FastAPI(
 
 
 app.include_router(auth_router)
-app.include_router(test_router)
+app.include_router(apartamentos_router)
 

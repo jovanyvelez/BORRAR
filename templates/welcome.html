@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Bienvenido{% endblock %}
+
+{% block header %}Bienvenido al Sistema{% endblock %}
+
+{% block content %}
+<div style="text-align:center;padding:2rem;">
+    <h2 style="color:#2c3e50;margin-bottom:1rem;">¡Bienvenido, {{ user.nombre_completo or user.username }}!</h2>
+    
+    <div style="background:#d4edda;color:#155724;padding:1rem;border-radius:4px;margin:2rem 0;border:1px solid #c3e6cb;">
+        <p>Has iniciado sesión correctamente en el sistema.</p>
+    </div>
+    
+    <div style="background:#f8f9fa;padding:2rem;border-radius:8px;margin:2rem 0;">
+        <h3>Información del Usuario</h3>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Rol:</strong> {{ user.rol }}</p>
+        <p><strong>Estado:</strong> {{ "Activo" if user.is_active else "Inactivo" }}</p>
+    </div>
+    
+    <div style="margin-top:2rem;">
+        <a href="/apartamentos" class="btn" style="margin-right:1rem;text-decoration:none;">Ver Apartamentos</a>
+        <a href="/logout" class="btn" style="background:#dc3545;text-decoration:none;">Cerrar Sesión</a>
+    </div>
+</div>
+{% endblock %}
