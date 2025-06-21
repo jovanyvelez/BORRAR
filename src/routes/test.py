@@ -8,9 +8,9 @@ from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
 from pydantic import BaseModel
 
-# Para obtener una clave secreta segura, puedes usar el siguiente comando usando Linux o MacOS:
+# to get a string like this run:
 # openssl rand -hex 32
-SECRET_KEY = "381756726c4aecfa70852c55cfc7f1572a1bfb6f446705d6755204a82c21b82a"
+SECRET_KEY = "20673b779bd404ac9cdc034d0e84f27f60401df8854506e317317940be725648"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -50,7 +50,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-app = APIRouter()
+router = APIRouter()
 
 
 def verify_password(plain_password, hashed_password):
@@ -115,7 +115,7 @@ async def get_current_active_user(
     return current_user
 
 
-@app.post("/token")
+@router.post("/token")
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
@@ -133,14 +133,14 @@ async def login_for_access_token(
     return Token(access_token=access_token, token_type="bearer")
 
 
-@app.get("/users/me/", response_model=User)
+@router.get("/users/me/", response_model=User)
 async def read_users_me(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ):
     return current_user
 
 
-@app.get("/users/me/items/")
+@router.get("/users/me/items/")
 async def read_own_items(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ):
